@@ -1,14 +1,20 @@
-// The ads. On purpose, this is a plain Server Component with NO interactivity
-// and NO knowledge of whether the user has paid. It always renders.
-//
-// Making these obey a "the user went premium" flag is YOUR job (see README.md).
-// You'll need the browser's localStorage to remember the purchase, and
-// localStorage only exists in the browser... so think about where this code
-// is allowed to run.
-//
-// It renders TWO banners so the page feels genuinely cluttered:
-//   1. a scrolling marquee strip across the top of the content
-//   2. a floating, blinking ad card pinned to the bottom-right corner
+'use client';
+
+import { useEffect, useState } from 'react';
+
+const STORAGE_KEY = 'techcart-premium';
+
+function readPremiumStatus() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.localStorage.getItem(STORAGE_KEY) === 'true';
+}
+
+// The ads render in the client so they can respond to the premium flag stored
+// in the browser. This avoids using the server-rendered version as the source
+// of truth during the first paint.
 
 const MARQUEE_ADS = [
   "🔥 MEGA DEAL: buy 1 cable, get 0 free!",
@@ -19,6 +25,28 @@ const MARQUEE_ADS = [
 ];
 
 export default function AdBanner() {
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    const syncPremiumState = () => {
+      setIsPremium(readPremiumStatus());
+    };
+
+    syncPremiumState();
+
+    window.addEventListener('storage', syncPremiumState);
+    window.addEventListener('premium-status-updated', syncPremiumState);
+
+    return () => {
+      window.removeEventListener('storage', syncPremiumState);
+      window.removeEventListener('premium-status-updated', syncPremiumState);
+    };
+  }, []);
+
+  if (isPremium) {
+    return null;
+  }
+
   return (
     <>
       {/* 1) Top marquee strip */}
