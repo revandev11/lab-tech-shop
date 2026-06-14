@@ -1,7 +1,6 @@
 # Notes: my design log
 
-**Live URL (Vercel):** Deployment is not yet available from this session because the Vercel CLI reports no authenticated account. The local app is ready; the final URL needs a successful Vercel login and deploy step.
-
+**Live URL (Vercel):** https://lab-tech-shop-five.vercel.app/
 ## 1. Route and storage choice
 
 - I used the existing route at /premium because the navbar already points there, and the README calls this out as the payment page.
